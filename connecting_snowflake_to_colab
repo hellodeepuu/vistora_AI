@@ -1,0 +1,16 @@
+!pip install snowflake-connector-python pandas sqlalchemy
+import pandas as pd
+import snowflake.connector
+
+conn = snowflake.connector.connect(
+    user='DEEPUDAMARLA',
+    password='**************',  
+    account='UPHTUQQ-AY17374',   
+    warehouse='SNOWFLAKE_LEARNING_WH',
+    database='SNOWFLAKE_SAMPLE_DATA',
+    schema='TPCH_SF1'
+)
+cur = conn.cursor()
+cur.execute("SELECT * FROM LINEITEM LIMIT 100")
+df = cur.fetch_pandas_all()
+df.head()
