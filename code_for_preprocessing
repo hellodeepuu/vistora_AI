@@ -1,0 +1,29 @@
+
+# feature engineering process
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+
+date_cols = ['L_SHIPDATE', 'L_COMMITDATE', 'L_RECEIPTDATE']
+for col in date_cols:
+    df[col] = pd.to_datetime(df[col], errors='coerce')  # coerce to handle bad formats
+
+cat_cols = df.select_dtypes(include='object').columns
+for col in cat_cols:
+    df[col] = df[col].str.strip().str.upper()
+
+label_encoders = {}
+for col in cat_cols:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col])
+    label_encoders[col] = le  # Store encoder for inverse_transform if needed
+
+df['DAYS_TO_SHIP'] = (df['L_SHIPDATE'] - df['L_COMMITDATE']).dt.days
+df['DAYS_TO_RECEIPT'] = (df['L_RECEIPTDATE'] - df['L_SHIPDATE']).dt.days
+
+
+numeric_cols = df.select_dtypes(include=['int8', 'int16', 'int32', 'float64']).columns.tolist()
+numeric_cols += ['DAYS_TO_SHIP', 'DAYS_TO_RECEIPT']
+
+scaler = StandardScaler()
+df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
+
+print(df.head())
